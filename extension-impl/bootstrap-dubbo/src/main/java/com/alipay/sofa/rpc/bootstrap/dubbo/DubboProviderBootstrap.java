@@ -132,7 +132,8 @@ public class DubboProviderBootstrap<T> extends ProviderBootstrap<T> {
         serviceConfig.setInterface(providerConfig.getInterfaceId());
         serviceConfig.setRef(providerConfig.getRef());
         serviceConfig.setGroup(providerConfig.getUniqueId());
-        serviceConfig.setVersion("1.0");
+        String dubboVersion = providerConfig.getParameter(RpcConstants.CONFIG_KEY_DUBBO_VERSION);
+        serviceConfig.setVersion(StringUtils.isNotBlank(dubboVersion) ? dubboVersion : "1.0");
         serviceConfig.setActives(providerConfig.getConcurrents());
         serviceConfig.setDelay(providerConfig.getDelay());
         serviceConfig.setDynamic(providerConfig.isDynamic());
@@ -189,7 +190,7 @@ public class DubboProviderBootstrap<T> extends ProviderBootstrap<T> {
                         .append(":").append(server.getPort()).append(server.getContextPath())
                         .append(providerConfig.getInterfaceId())
                         .append("?uniqueId=").append(providerConfig.getUniqueId())
-                        .append(getKeyPairs("version", "1.0"))
+                        .append(getKeyPairs("version", serviceConfig.getVersion()))
                         .append(getKeyPairs("delay", providerConfig.getDelay()))
                         .append(getKeyPairs("weight", providerConfig.getWeight()))
                         .append(getKeyPairs("register", providerConfig.isRegister()))

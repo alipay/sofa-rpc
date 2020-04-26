@@ -22,6 +22,7 @@ import com.alipay.sofa.rpc.client.Cluster;
 import com.alipay.sofa.rpc.client.ProviderGroup;
 import com.alipay.sofa.rpc.common.RpcConstants;
 import com.alipay.sofa.rpc.common.utils.CommonUtils;
+import com.alipay.sofa.rpc.common.utils.StringUtils;
 import com.alipay.sofa.rpc.config.ApplicationConfig;
 import com.alipay.sofa.rpc.config.ConsumerConfig;
 import com.alipay.sofa.rpc.config.MethodConfig;
@@ -104,7 +105,8 @@ public class DubboConsumerBootstrap<T> extends ConsumerBootstrap<T> {
         referenceConfig.setId(consumerConfig.getId());
         referenceConfig.setInterface(consumerConfig.getInterfaceId());
         referenceConfig.setGroup(consumerConfig.getUniqueId());
-        referenceConfig.setVersion("1.0");
+        String dubboVersion = consumerConfig.getParameter(RpcConstants.CONFIG_KEY_DUBBO_VERSION);
+        referenceConfig.setVersion(StringUtils.isNotBlank(dubboVersion) ? dubboVersion : "1.0");
         referenceConfig.setActives(consumerConfig.getConcurrents());
         referenceConfig.setCluster(consumerConfig.getCluster());
         referenceConfig.setConnections(consumerConfig.getConnectionNum());

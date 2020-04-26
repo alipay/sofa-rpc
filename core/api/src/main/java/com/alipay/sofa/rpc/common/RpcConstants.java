@@ -477,6 +477,11 @@ public class RpcConstants {
      * 配置key:protocol
      */
     public static final String  CONFIG_KEY_PROTOCOL                = "protocol";
+
+    /**
+     * 配置key:protocol
+     */
+    public static final String  CONFIG_KEY_DUBBO_VERSION           = "dubboVersion";
     /*--------配置项相关结束---------*/
 
     /*--------客户端相关开始---------*/
