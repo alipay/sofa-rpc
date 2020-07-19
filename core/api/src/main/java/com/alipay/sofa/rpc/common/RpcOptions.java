@@ -540,4 +540,14 @@ public class RpcOptions {
      * use conn validate by server or not, usually we use it as sec or backlist ip
      */
     public static final String CONNNECTION_VALIDATE_SLEEP               = "connection.validate.sleep";
+
+    /**
+     * Port of prometheus exporter.
+     */
+    public static final String METRICS_PROMETHEUS_PORT                  = "metrics.prometheus.port";
+
+    /**
+     * If sh
+     */
+    public static final String METRICS_PROMETHEUS_ENABLE                = "metrics.prometheus.enable";
 }

@@ -421,4 +421,11 @@ public class RpcConfigs {
          */
         public void onChange(T oldValue, T newValue);
     }
+
+    /**
+     * reload system properties for test
+     */
+    public static void reloadSystemProperties() {
+        CFG.putAll(new HashMap(System.getProperties())); // 注意部分属性可能被覆盖为字符串
+    }
 }

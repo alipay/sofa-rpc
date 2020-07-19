@@ -16,6 +16,7 @@
     <modules>
         <module>metrics-lookout</module>
         <module>metrics-micrometer</module>
+        <module>metrics-prometheus</module>
     </modules>
 
     <dependencyManagement>

@@ -300,5 +300,9 @@ PS:大家也看到了，本JSON文档是支持注释的，而标准JSON是不支
   //是否禁止开启lookout采集信息
   "lookout.collect.disable": false,
   //是否禁止开启lookout采集信息
-  "connection.validate.sleep": false
+  "connection.validate.sleep": false,
+  // prometheus metric endpoint 端口
+  "metrics.prometheus.port": 19090,
+  // 是否启用 prometheus metrics
+  "metrics.prometheus.enable": true
 }
