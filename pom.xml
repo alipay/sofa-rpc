@@ -67,7 +67,7 @@
         <skipTests>false</skipTests>
         <protoc.version>3.7.1</protoc.version>
         <grpc.version>1.27.2</grpc.version>
-        <sofa.rpc.compiler.version>0.0.2</sofa.rpc.compiler.version>
+        <sofa.rpc.compiler.version>0.0.1</sofa.rpc.compiler.version>
     </properties>
 
     <build>

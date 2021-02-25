@@ -17,7 +17,6 @@
 package com.alipay.sofa.rpc.server.triple;
 
 import com.alipay.sofa.rpc.common.struct.NamedThreadFactory;
-import com.alipay.sofa.rpc.common.utils.StringUtils;
 import com.alipay.sofa.rpc.config.ProviderConfig;
 import com.alipay.sofa.rpc.config.ServerConfig;
 import com.alipay.sofa.rpc.core.exception.SofaRpcRuntimeException;
@@ -51,21 +50,19 @@ import io.grpc.netty.shaded.io.netty.channel.nio.NioEventLoopGroup;
 import io.grpc.netty.shaded.io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.grpc.protobuf.ProtoUtils;
 import io.grpc.util.MutableHandlerRegistry;
-import org.omg.PortableServer.ThreadPolicy;
 import triple.Request;
 import triple.Response;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static com.alipay.sofa.rpc.constant.TripleConstant.EXPOSE_OLD_UNIQUE_ID_SERVICE;
-import static com.alipay.sofa.rpc.constant.TripleConstant.TRIPLE_EXPOSE_OLD;
-import static com.alipay.sofa.rpc.utils.SofaProtoUtils.getFullNameWithUniqueId;
 import static io.grpc.MethodDescriptor.generateFullMethodName;
 
 /**
@@ -113,6 +110,10 @@ public class TripleServer implements Server {
      */
     protected ConcurrentHashMap<ProviderConfig, ServerServiceDefinition> serviceInfo     = new ConcurrentHashMap<ProviderConfig,
                                                                                                  ServerServiceDefinition>();
+    /**
+     * The mapping relationship between service name and unique id invoker
+     */
+    protected Map<String, UniqueIdInvoker> invokerMap = new ConcurrentHashMap<>();
 
     /**
      * invoker count
@@ -240,34 +241,23 @@ public class TripleServer implements Server {
     public void registerProcessor(ProviderConfig providerConfig, Invoker instance) {
         Object ref = providerConfig.getRef();
         try {
-            ServerServiceDefinition serviceDef;
+            // wrap invoker to support unique id
+            UniqueIdInvoker uniqueIdInvoker = this.invokerMap.computeIfAbsent(providerConfig.getInterfaceId(), interfaceId -> new UniqueIdInvoker());
+            uniqueIdInvoker.registerInvoker(providerConfig, instance);
 
+            // create service definition
+            ServerServiceDefinition serviceDef;
             if (SofaProtoUtils.isProtoClass(ref)) {
+                // refer is BindableService
+                this.setBindableProxiedImpl(providerConfig, uniqueIdInvoker);
                 BindableService bindableService = (BindableService) providerConfig.getRef();
                 serviceDef = bindableService.bindService();
-
             } else {
-                Object obj = ProxyFactory.buildProxy(providerConfig.getProxy(), providerConfig.getProxyClass(),
-                    instance);
+                // normal class
+                Object obj = ProxyFactory.buildProxy(providerConfig.getProxy(), providerConfig.getProxyClass(), uniqueIdInvoker);
                 GenericServiceImpl genericService = new GenericServiceImpl(obj, providerConfig.getProxyClass());
                 genericService.setProxiedImpl(genericService);
                 serviceDef = buildSofaServiceDef(genericService, providerConfig);
-            }
-            ServerServiceDefinition oldServiceDef;
-            oldServiceDef = serviceDef;
-            if (StringUtils.isNotBlank(providerConfig.getUniqueId())) {
-                serviceDef = appendUniqueIdToServiceDef(providerConfig.getUniqueId(), serviceDef);
-                if (exposeOldUniqueIdService(providerConfig)) {
-                    List<TripleServerInterceptor> interceptorList = buildInterceptorChain(oldServiceDef);
-                    ServerServiceDefinition serviceDefinition = ServerInterceptors.intercept(
-                        oldServiceDef, interceptorList);
-                    oldServiceInfo.put(providerConfig, serviceDefinition);
-                    ServerServiceDefinition ssd = handlerRegistry.addService(serviceDefinition);
-                    if (ssd != null) {
-                        throw new IllegalStateException("Can not expose service with same name:" +
-                            serviceDefinition.getServiceDescriptor().getName());
-                    }
-                }
             }
 
             List<TripleServerInterceptor> interceptorList = buildInterceptorChain(serviceDef);
@@ -289,13 +279,21 @@ public class TripleServer implements Server {
 
     }
 
-    private boolean exposeOldUniqueIdService(ProviderConfig providerConfig) {
-        //default false
-        String exposeOld = providerConfig.getParameter(TRIPLE_EXPOSE_OLD);
-        if (StringUtils.isBlank(exposeOld)) {
-            return EXPOSE_OLD_UNIQUE_ID_SERVICE;
-        } else {
-            return Boolean.parseBoolean(exposeOld);
+    private void setBindableProxiedImpl(ProviderConfig providerConfig, Invoker invoker) {
+        Class<?> implClass = providerConfig.getRef().getClass();
+        try {
+            Method method = implClass.getMethod("setProxiedImpl", providerConfig.getProxyClass());
+            Object obj = ProxyFactory.buildProxy(providerConfig.getProxy(), providerConfig.getProxyClass(), invoker);
+            method.invoke(providerConfig.getRef(), obj);
+        } catch (NoSuchMethodException e) {
+            LOGGER
+                    .info(
+                            "{} don't hava method setProxiedImpl, will treated as origin provider service instead of grpc service.",
+                            implClass);
+        } catch (Exception e) {
+            throw new IllegalStateException(
+                    "Failed to set sofa proxied service impl to stub, please make sure your stub "
+                            + "was generated by the sofa-protoc-compiler.", e);
         }
     }
 
@@ -310,8 +308,7 @@ public class TripleServer implements Server {
             String fullMethodName = methodDescriptor.getFullMethodName();
             MethodDescriptor<?, ?> methodDescriptorWithUniqueId = methodDescriptor
                 .toBuilder()
-                .setFullMethodName(
-                    getFullNameWithUniqueId(fullMethodName, uniqueId))
+                .setFullMethodName(fullMethodName)
                 .build();
             ServerMethodDefinition<?, ?> newServerMethodDefinition = ServerMethodDefinition.create(
                 methodDescriptorWithUniqueId, method.getServerCallHandler());
@@ -397,13 +394,11 @@ public class TripleServer implements Server {
     public void unRegisterProcessor(ProviderConfig providerConfig, boolean closeIfNoEntry) {
         try {
             ServerServiceDefinition serverServiceDefinition = serviceInfo.get(providerConfig);
-            if (exposeOldUniqueIdService(providerConfig)) {
-                ServerServiceDefinition oldServiceDef = oldServiceInfo.get(providerConfig);
-                if (oldServiceDef != null) {
-                    handlerRegistry.removeService(oldServiceDef);
-                }
-            }
             handlerRegistry.removeService(serverServiceDefinition);
+            UniqueIdInvoker uniqueIdInvoker = this.invokerMap.get(providerConfig.getInterfaceId());
+            if (null != uniqueIdInvoker) {
+                uniqueIdInvoker.unRegisterInvoker(providerConfig);
+            }
             invokerCnt.decrementAndGet();
         } catch (Exception e) {
             LOGGER.error("Unregister triple service error", e);

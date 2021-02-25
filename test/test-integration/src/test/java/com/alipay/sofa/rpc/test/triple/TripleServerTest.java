@@ -21,7 +21,6 @@ import com.alipay.sofa.rpc.config.ApplicationConfig;
 import com.alipay.sofa.rpc.config.ConsumerConfig;
 import com.alipay.sofa.rpc.config.ProviderConfig;
 import com.alipay.sofa.rpc.config.ServerConfig;
-import com.alipay.sofa.rpc.constant.TripleConstant;
 import com.alipay.sofa.rpc.context.RpcInternalContext;
 import com.alipay.sofa.rpc.context.RpcInvokeContext;
 import com.alipay.sofa.rpc.context.RpcRunningState;
@@ -98,8 +97,6 @@ public class TripleServerTest {
             .setRef(new GreeterImpl())
             .setServer(serverConfig);
 
-        providerConfig.setParameter(TripleConstant.TRIPLE_EXPOSE_OLD, "true");
-
         providerConfig.export();
 
         ConsumerConfig<SofaGreeterTriple.IGreeter> consumerConfig = new ConsumerConfig<SofaGreeterTriple.IGreeter>();
@@ -152,8 +149,6 @@ public class TripleServerTest {
             .setRef(new GreeterImpl())
             .setServer(serverConfig);
 
-        providerConfig.setParameter(TripleConstant.TRIPLE_EXPOSE_OLD, "true");
-
         providerConfig.export();
         applicationConfig = new ApplicationConfig().setAppName("triple-server");
 
@@ -167,8 +162,6 @@ public class TripleServerTest {
             .setInterfaceId(SofaGreeterTriple.IGreeter.class.getName())
             .setRef(new GreeterImpl())
             .setServer(serverConfig);
-
-        providerConfig.setParameter(TripleConstant.TRIPLE_EXPOSE_OLD, "true");
 
         try {
             providerConfig.export();

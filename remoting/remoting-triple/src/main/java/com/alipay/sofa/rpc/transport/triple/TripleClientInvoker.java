@@ -37,10 +37,8 @@ import java.lang.reflect.Method;
 import java.util.concurrent.TimeUnit;
 
 import static com.alipay.sofa.rpc.common.RpcConstants.SERIALIZE_HESSIAN2;
-import static com.alipay.sofa.rpc.constant.TripleConstant.TRIPLE_EXPOSE_OLD;
 import static com.alipay.sofa.rpc.constant.TripleConstant.UNIQUE_ID;
 import static com.alipay.sofa.rpc.utils.SofaProtoUtils.checkIfUseGeneric;
-import static com.alipay.sofa.rpc.utils.SofaProtoUtils.getFullNameWithUniqueId;
 import static io.grpc.MethodDescriptor.generateFullMethodName;
 
 /**
@@ -64,14 +62,11 @@ public class TripleClientInvoker implements TripleInvoker {
 
     private Serializer          serializer;
     private String              serialization;
-    private boolean             useOldPath;
 
     public TripleClientInvoker(ConsumerConfig consumerConfig, Channel channel) {
         this.channel = channel;
         this.consumerConfig = consumerConfig;
         useGeneric = checkIfUseGeneric(consumerConfig);
-        //default false
-        useOldPath = Boolean.parseBoolean(consumerConfig.getParameter(TRIPLE_EXPOSE_OLD));
         cacheCommonData(consumerConfig);
 
         if (!useGeneric) {
@@ -119,9 +114,7 @@ public class TripleClientInvoker implements TripleInvoker {
             MethodDescriptor methodDescriptor = io.grpc.MethodDescriptor
                 .newBuilder()
                 .setType(io.grpc.MethodDescriptor.MethodType.UNARY)
-                .setFullMethodName(useOldPath ? fullMethodName :
-                    getFullNameWithUniqueId(fullMethodName,
-                        consumerConfig.getUniqueId()))
+                .setFullMethodName(fullMethodName)
                 .setSampledToLocalTracing(true)
                 .setRequestMarshaller((MethodDescriptor.Marshaller<Object>) requestMarshaller)
                 .setResponseMarshaller((MethodDescriptor.Marshaller<Object>) responseMarshaller)
