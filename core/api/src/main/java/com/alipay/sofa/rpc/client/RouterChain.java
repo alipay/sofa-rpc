@@ -146,7 +146,10 @@ public class RouterChain {
                 if (startsWithExcludePrefix(routerAlias)) { // 排除用的特殊字符
                     excludes.add(routerAlias.substring(1));
                 } else {
-                    extensionRouters.add(EXTENSION_LOADER.getExtensionClass(routerAlias));
+                    ExtensionClass<Router> extensionRouter = EXTENSION_LOADER.getExtensionClass(routerAlias);
+                    if (extensionRouter != null) {
+                        extensionRouters.add(extensionRouter);
+                    }
                 }
             }
         }
