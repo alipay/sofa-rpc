@@ -15,7 +15,7 @@
     <properties>
         <protoc.version>3.11.0</protoc.version>
         <protoc-gen-grpc-java.version>1.17.0</protoc-gen-grpc-java.version>
-        <sofa.rpc.compiler.version>0.0.3</sofa.rpc.compiler.version>
+        <sofa.rpc.compiler.version>0.0.2</sofa.rpc.compiler.version>
         <grpc.version>1.28.0</grpc.version>
         <maven-compiler-plugin.version>3.7.0</maven-compiler-plugin.version>
     </properties>

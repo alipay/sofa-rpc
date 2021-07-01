@@ -1,5 +1,8 @@
     package triple;
 
+import com.alipay.sofa.rpc.client.ProviderInfo;
+import com.alipay.sofa.rpc.config.ConsumerConfig;
+
 import java.util.concurrent.TimeUnit;
 
 import static triple.GenericServiceGrpc.getServiceDescriptor;
@@ -18,13 +21,17 @@ private SofaGenericServiceTriple() {}
 
 public static class SofaGenericServiceStub implements IGenericService {
 
+protected ProviderInfo providerInfo;
+protected ConsumerConfig consumerConfig;
 protected int timeout;
 
 protected GenericServiceGrpc.GenericServiceBlockingStub blockingStub;
 protected GenericServiceGrpc.GenericServiceFutureStub futureStub;
 protected GenericServiceGrpc.GenericServiceStub stub;
 
-public SofaGenericServiceStub(io.grpc.Channel channel, io.grpc.CallOptions callOptions, int timeout) {
+public SofaGenericServiceStub(io.grpc.Channel channel, io.grpc.CallOptions callOptions,ProviderInfo providerInfo, ConsumerConfig consumerConfig, int timeout) {
+this.providerInfo = providerInfo;
+this.consumerConfig = consumerConfig;
 this.timeout = timeout;
 
 blockingStub = GenericServiceGrpc.newBlockingStub(channel).build(channel, callOptions);
@@ -52,8 +59,8 @@ stub = GenericServiceGrpc.newStub(channel).build(channel, callOptions);
 
 }
 
-public static SofaGenericServiceStub getSofaStub(io.grpc.Channel channel, io.grpc.CallOptions callOptions,int timeout) {
-return new SofaGenericServiceStub(channel, callOptions, timeout);
+public static SofaGenericServiceStub getSofaStub(io.grpc.Channel channel, io.grpc.CallOptions callOptions, ProviderInfo providerInfo, ConsumerConfig consumerConfig, int timeout) {
+return new SofaGenericServiceStub(channel, callOptions, providerInfo, consumerConfig, timeout);
 }
 
 public static String getServiceName() {

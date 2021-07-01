@@ -51,9 +51,6 @@ stub = {{serviceName}}Grpc.newStub(channel).build(channel, callOptions);
     {{/deprecated}}
     public {{outputType}} {{methodName}}({{inputType}} request) {
     io.grpc.MethodDescriptor<{{inputType}}, {{outputType}}> method = {{serviceName}}Grpc.get{{methodNamePascalCase}}Method();
-    if(isNotEmpty(uniqueId)){
-        method = method.toBuilder().setFullMethodName(getFullNameWithUniqueId(method.getFullMethodName(), callOptions.getOption(UNIQUE_ID))).build();
-    }
     return blockingUnaryCall(blockingStub.getChannel(),method,callOptions,request);
     }
 
@@ -74,7 +71,6 @@ stub = {{serviceName}}Grpc.newStub(channel).build(channel, callOptions);
     private boolean isNotEmpty(String uniqueId) {
         return uniqueId != null && uniqueId.length() > 0;
     }
-
     private String getFullNameWithUniqueId(String fullMethodName, String uniqueId) {
         int i = fullMethodName.indexOf("/");
         if (i > 0 &&  isNotEmpty(uniqueId)) {

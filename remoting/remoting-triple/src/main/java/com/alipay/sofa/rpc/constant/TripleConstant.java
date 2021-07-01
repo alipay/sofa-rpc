@@ -30,5 +30,4 @@ public class TripleConstant {
     public static final String                  TRIPLE_EXPOSE_OLD            = "triple.use.old.path";
     public static final Boolean                 EXPOSE_OLD_UNIQUE_ID_SERVICE = SofaConfigs
                                                                                  .getOrDefault(RpcConfigKeys.TRIPLE_EXPOSE_OLD_UNIQUE_ID_SERVICE);
-
 }
