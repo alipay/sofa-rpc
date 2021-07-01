@@ -112,26 +112,45 @@ public class NacosRegistry extends Registry {
 
     @Override
     public synchronized void init() {
+        String namespace;
+        String address; // IP地址
+        String username = null;//账号名
+        String password = null;//密码
         if (namingService != null) {
             return;
         }
 
-        String addressInput = registryConfig.getAddress(); // xxx:8848,yyy:8848/namespace
+        String addressInput = registryConfig.getAddress(); // username/password@localhost:8848,localhost8847/namespace
         if (StringUtils.isEmpty(addressInput)) {
             throw new SofaRpcRuntimeException(LogCodes.getLog(LogCodes.ERROR_EMPTY_ADDRESS, EXT_NAME));
         }
-        int idx = addressInput.indexOf(CONTEXT_SEP);
-        String namespace;
-        String address; // IP地址
+        String[] authAndUrlArray = addressInput.split("@");
+        //nacos服务地址和命名空间 localhost:8848,localhost8847/namespace
+        String remoteUrl = "";
+        if(authAndUrlArray.length > 1){
+            //有认证信息
+            String[] usernameAndPwdArray = authAndUrlArray[0].split(CONTEXT_SEP);
+            if(usernameAndPwdArray.length < 2){
+                throw new SofaRpcRuntimeException(LogCodes.getLog(LogCodes.ERROR_EMPTY_ADDRESS, EXT_NAME));
+            }
+            username = usernameAndPwdArray[0];
+            password = usernameAndPwdArray[1];
+            remoteUrl = authAndUrlArray[1];
+        }else{
+            //无认证信息
+            remoteUrl = authAndUrlArray[0];
+        }
+
+        int idx = remoteUrl.indexOf(CONTEXT_SEP);
         if (idx > 0) {
-            address = addressInput.substring(0, idx);
-            namespace = addressInput.substring(idx + 1);
+            address = remoteUrl.substring(0, idx);
+            namespace = remoteUrl.substring(idx + 1);
             //for host:port/ this scene
             if (StringUtils.isBlank(namespace)) {
                 namespace = DEFAULT_NAMESPACE;
             }
         } else {
-            address = addressInput;
+            address = remoteUrl;
             namespace = DEFAULT_NAMESPACE;
         }
 
@@ -139,6 +158,8 @@ public class NacosRegistry extends Registry {
 
         nacosConfig.put(PropertyKeyConst.SERVER_ADDR, address);
         nacosConfig.put(PropertyKeyConst.NAMESPACE, namespace);
+        if(!StringUtils.isBlank(username))nacosConfig.put(PropertyKeyConst.USERNAME,username);
+        if(!StringUtils.isBlank(password))nacosConfig.put(PropertyKeyConst.PASSWORD,password);
 
         try {
             namingService = NamingFactory.createNamingService(nacosConfig);
