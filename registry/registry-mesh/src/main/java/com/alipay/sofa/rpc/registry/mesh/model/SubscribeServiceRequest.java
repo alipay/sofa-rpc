@@ -16,25 +16,29 @@
  */
 package com.alipay.sofa.rpc.registry.mesh.model;
 
+import java.util.Map;
+
 /**
  * @author bystander
  * @version $Id: PublishServiceRequest.java, v 0.1 2018年04月03日 11:27 AM bystander Exp $
  */
 public class SubscribeServiceRequest {
+    private String              serviceName;
 
-    private String  serviceName;
+    // Value example: DEFAULT, XFIRE, bolt or tr
+    private String              protocolType;
 
-    //这个值是类似DEFAULT/XFIRE这种，也有可能是tr
-    private String  protocolType;
+    // Value should be in form: xxx-pool.alipay.com or xxx.alipay.com
+    // targetAppAddress is nullable
+    private String              targetAppAddress;
 
-    //this should be xxx-pool.alipay.com or  xxx.alipay.com,can be null
-    private String  targetAppAddress;
+    private boolean             vipEnforce;
 
-    private boolean vipEnforce;
+    private boolean             vipOnly;
 
-    private boolean vipOnly;
+    private boolean             localCloudFirst;
 
-    private boolean localCloudFirst;
+    private Map<String, String> properties;
 
     public String getServiceName() {
         return serviceName;
@@ -84,16 +88,23 @@ public class SubscribeServiceRequest {
         this.localCloudFirst = localCloudFirst;
     }
 
+    public Map<String, String> getProperties() {
+        return properties;
+    }
+
+    public void setProperties(Map<String, String> properties) {
+        this.properties = properties;
+    }
+
     @Override
     public String toString() {
-        final StringBuffer sb = new StringBuffer("SubscribeServiceRequest{");
-        sb.append("serviceName='").append(serviceName).append('\'');
-        sb.append(", protocolType='").append(protocolType).append('\'');
-        sb.append(", targetAppAddress='").append(targetAppAddress).append('\'');
-        sb.append(", vipEnforce=").append(vipEnforce);
-        sb.append(", vipOnly=").append(vipOnly);
-        sb.append(", localCloudFirst=").append(localCloudFirst);
-        sb.append('}');
-        return sb.toString();
+        return "SubscribeServiceRequest{" + "serviceName='" + serviceName + '\'' +
+            ", protocolType='" + protocolType + '\'' +
+            ", targetAppAddress='" + targetAppAddress + '\'' +
+            ", vipEnforce=" + vipEnforce +
+            ", vipOnly=" + vipOnly +
+            ", localCloudFirst=" + localCloudFirst +
+            ", properties=" + properties +
+            '}';
     }
 }

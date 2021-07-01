@@ -177,6 +177,7 @@ public class MeshRegistry extends Registry {
         PublishServiceRequest publishServiceRequest = new PublishServiceRequest();
         publishServiceRequest.setServiceName(serviceName);
         publishServiceRequest.setProtocolType(protocol);
+        publishServiceRequest.setPort(String.valueOf(providerInfo.getPort()));
         ProviderMetaInfo providerMetaInfo = new ProviderMetaInfo();
         providerMetaInfo.setProtocol(providerInfo.getProtocolType());
         providerMetaInfo.setSerializeType(providerInfo.getSerializationType());
@@ -228,8 +229,8 @@ public class MeshRegistry extends Registry {
 
         UnPublishServiceRequest unPublishServiceRequest = new UnPublishServiceRequest();
         unPublishServiceRequest.setServiceName(serviceName);
+        unPublishServiceRequest.setProperties(providerInfo.getStaticAttrs());
         client.unPublishService(unPublishServiceRequest);
-
     }
 
     @Override
@@ -298,6 +299,7 @@ public class MeshRegistry extends Registry {
         String key = MeshRegistryHelper.buildMeshKey(consumerConfig, consumerConfig.getProtocol());
         SubscribeServiceRequest subscribeRequest = new SubscribeServiceRequest();
         subscribeRequest.setServiceName(key);
+        subscribeRequest.setProperties(consumerConfig.getParameters());
         return subscribeRequest;
     }
 
@@ -362,6 +364,7 @@ public class MeshRegistry extends Registry {
         UnSubscribeServiceRequest unsubscribeRequest = new UnSubscribeServiceRequest();
         String key = MeshRegistryHelper.buildMeshKey(config, config.getProtocol());
         unsubscribeRequest.setServiceName(key);
+        unsubscribeRequest.setProperties(config.getParameters());
         return unsubscribeRequest;
     }
 

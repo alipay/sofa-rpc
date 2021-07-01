@@ -16,19 +16,24 @@
  */
 package com.alipay.sofa.rpc.registry.mesh.model;
 
+import java.util.Map;
+
 /**
  * @author bystander
  * @version $Id: PublishServiceRequest.java, v 0.1 2018年04月03日 11:27 AM bystander Exp $
  */
 public class UnSubscribeServiceRequest {
 
-    private String serviceName;
+    private String              serviceName;
 
-    //this should be xxx-pool.alipay.com or  xxx.alipay.com can be null
-    private String targetAppAddress;
+    // Value should be in form: xxx-pool.alipay.com or xxx.alipay.com
+    // targetAppAddress is nullable
+    private String              targetAppAddress;
 
-    //这个值是类似DEFAULT/XFIRE这种，也有可能是tr
-    private String protocolType;
+    // Value example: DEFAULT, XFIRE, bolt or tr
+    private String              protocolType;
+
+    private Map<String, String> properties;
 
     public String getServiceName() {
         return serviceName;
@@ -54,13 +59,20 @@ public class UnSubscribeServiceRequest {
         this.protocolType = protocolType;
     }
 
+    public Map<String, String> getProperties() {
+        return properties;
+    }
+
+    public void setProperties(Map<String, String> properties) {
+        this.properties = properties;
+    }
+
     @Override
     public String toString() {
-        final StringBuffer sb = new StringBuffer("UnSubscribeServiceRequest{");
-        sb.append("serviceName='").append(serviceName).append('\'');
-        sb.append(", targetAppAddress='").append(targetAppAddress).append('\'');
-        sb.append(", protocolType='").append(protocolType).append('\'');
-        sb.append('}');
-        return sb.toString();
+        return "UnSubscribeServiceRequest{" + "serviceName='" + serviceName + '\'' +
+            ", targetAppAddress='" + targetAppAddress + '\'' +
+            ", protocolType='" + protocolType + '\'' +
+            ", properties=" + properties +
+            '}';
     }
 }

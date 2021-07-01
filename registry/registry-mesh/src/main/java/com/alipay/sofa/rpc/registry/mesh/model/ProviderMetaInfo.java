@@ -23,7 +23,6 @@ import java.util.Map;
  * @version $Id: ProviderMetaInfo.java, v 0.1 2018年04月03日 11:18 AM bystander Exp $
  */
 public class ProviderMetaInfo {
-
     private String              protocol;
 
     private String              version;
@@ -76,13 +75,11 @@ public class ProviderMetaInfo {
 
     @Override
     public String toString() {
-        final StringBuffer sb = new StringBuffer("ProviderMetaInfo{");
-        sb.append("protocol='").append(protocol).append('\'');
-        sb.append(", version='").append(version).append('\'');
-        sb.append(", serializeType='").append(serializeType).append('\'');
-        sb.append(", appName='").append(appName).append('\'');
-        sb.append(", properties=").append(properties);
-        sb.append('}');
-        return sb.toString();
+        return "ProviderMetaInfo{" + "protocol='" + protocol + '\'' +
+            ", version='" + version + '\'' +
+            ", serializeType='" + serializeType + '\'' +
+            ", appName='" + appName + '\'' +
+            ", properties=" + properties +
+            '}';
     }
 }
