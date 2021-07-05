@@ -41,4 +41,8 @@ public interface TestInterface {
     public String throwbiz2() throws Throwable;
 
     public String throwRPC();
+
+    static void doNothing() {
+
+    }
 }

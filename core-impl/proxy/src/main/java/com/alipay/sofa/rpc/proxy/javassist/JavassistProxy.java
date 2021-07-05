@@ -95,8 +95,8 @@ public class JavassistProxy implements Proxy {
                 constructor.setBody("{super(new " + UselessInvocationHandler.class.getName() + "());}");
                 mCtc.addConstructor(constructor);
 
-                List<String> fieldList = new ArrayList<String>();
-                List<String> methodList = new ArrayList<String>();
+                List<String> fieldList = new ArrayList<>();
+                List<String> methodList = new ArrayList<>();
 
                 fieldList.add("public " + Invoker.class.getCanonicalName() + " proxyInvoker = null;");
                 createMethod(interfaceClass, fieldList, methodList);
@@ -138,7 +138,7 @@ public class JavassistProxy implements Proxy {
         int mi = 0;
         for (Method m : methodAry) {
             mi++;
-            if (Modifier.isNative(m.getModifiers()) || Modifier.isFinal(m.getModifiers())) {
+            if (Modifier.isNative(m.getModifiers()) || Modifier.isFinal(m.getModifiers()) || Modifier.isStatic(m.getModifiers())) {
                 continue;
             }
             Class<?>[] mType = m.getParameterTypes();
