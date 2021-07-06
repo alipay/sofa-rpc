@@ -39,6 +39,13 @@ public class RpcInvokeContext {
     protected static final ThreadLocal<RpcInvokeContext> LOCAL = new ThreadLocal<RpcInvokeContext>();
 
     /**
+     * 自定义 header ，用完一次即删
+     */
+    protected HashMap<String, String> customHeader = new HashMap<>();
+
+
+
+    /**
      * 得到上下文，没有则初始化
      *
      * @return 调用上下文
@@ -393,6 +400,27 @@ public class RpcInvokeContext {
         return this;
     }
 
+
+    public Map<String, String> getCustomHeader() {
+        return new HashMap<>(customHeader);
+    }
+
+    /**
+     * 设置请求头，与 RequestBaggage 相比
+     * 1. 不受 enable baggage 开关影响，始终生效
+     * 2. 仅对一次调用生效，调用完成之会被清空
+     *
+     * @param key header key
+     * @param value header value
+     */
+    public void addCustomHeader(String key, String value) {
+        customHeader.put(key, value);
+    }
+
+    public void clearCustomHeader() {
+        customHeader.clear();
+    }
+
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder(128);
@@ -408,4 +436,6 @@ public class RpcInvokeContext {
         sb.append('}');
         return sb.toString();
     }
+
+
 }

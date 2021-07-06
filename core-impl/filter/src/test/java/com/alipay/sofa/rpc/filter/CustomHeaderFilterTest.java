@@ -17,7 +17,7 @@
 package com.alipay.sofa.rpc.filter;
 
 import com.alipay.sofa.rpc.config.AbstractInterfaceConfig;
-import com.alipay.sofa.rpc.context.RpcInternalContext;
+import com.alipay.sofa.rpc.context.RpcInvokeContext;
 import com.alipay.sofa.rpc.core.exception.SofaRpcException;
 import com.alipay.sofa.rpc.core.request.SofaRequest;
 import com.alipay.sofa.rpc.core.response.SofaResponse;
@@ -34,11 +34,11 @@ public class CustomHeaderFilterTest {
 
     @Test
     public void testCustomFilter() {
-        RpcInternalContext.getContext().addCustomHeader("a", "b");
+        RpcInvokeContext.getContext().addCustomHeader("a", "b");
         ConsumerCustomHeaderFilter filter = new ConsumerCustomHeaderFilter();
         SofaRequest request = new SofaRequest();
         filter.invoke(new EmptyInvoker(null), request);
-        Assert.assertTrue(RpcInternalContext.getContext().getCustomHeader().isEmpty());
+        Assert.assertTrue(RpcInvokeContext.getContext().getCustomHeader().isEmpty());
         Assert.assertEquals("b", request.getRequestProp("a"));
     }
 

@@ -28,7 +28,6 @@ import com.alipay.sofa.rpc.message.ResponseFuture;
 import java.net.InetSocketAddress;
 import java.util.ArrayDeque;
 import java.util.Deque;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -184,13 +183,6 @@ public class RpcInternalContext implements Cloneable {
      * 要调用的服务端信息
      */
     private ProviderInfo        providerInfo;
-
-
-    /**
-     * 自定义 header ，用完一次即删
-     */
-    protected HashMap<String, String> customHeader = new HashMap<>();
-
 
     /**
      * Is provider side.
@@ -506,26 +498,5 @@ public class RpcInternalContext implements Cloneable {
     static boolean isHiddenParamKey(String key) {
         char c = key.charAt(0);
         return c == RpcConstants.HIDE_KEY_PREFIX;
-    }
-
-
-    public Map<String, String> getCustomHeader() {
-        return new HashMap<>(customHeader);
-    }
-
-    /**
-     * 设置请求头，与 RequestBaggage 相比
-     * 1. 不受 enable baggage 开关影响，始终生效
-     * 2. 仅对一次调用生效，调用完成之会被清空
-     *
-     * @param key header key
-     * @param value header value
-     */
-    public void addCustomHeader(String key, String value) {
-        customHeader.put(key, value);
-    }
-
-    public void clearCustomHeader() {
-        customHeader.clear();
     }
 }
